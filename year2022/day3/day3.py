@@ -17,3 +17,20 @@ with open("input.txt", "r") as file:
       let = ans.pop()
       sum += prio[let]
 print(sum)
+
+
+# part2
+sum = 0
+with open("input.txt", "r") as file:
+   s = set()
+   for i, line in enumerate(file):
+      if i%3 == 0:
+         s = set(line)
+      else:
+         s = s.intersection(set(line))
+      
+      if i%3 == 2:
+         s.discard('\n')
+         let = s.pop()
+         sum += prio[let]
+print(sum)

@@ -16,17 +16,20 @@ plus the score for the outcome of the round (0 if you lost, 3 if the round was a
 
 with open("input.txt", "r") as file:
     score = 0
+    part2_score = 0
     csv_reader = csv.reader(file, delimiter=' ')
     for row in csv_reader:
-        enemy, you = row
-        enemy = dic[enemy]
-        you = dic[you]
+        enemy_let, you_let = row
+        enemy = dic[enemy_let]
+        you = dic[you_let]
 
         score += you + 1
         score += int(you%3 == (enemy+1)%3) * 6 
         score += int(you == enemy) * 3
+        
+        #part2
+        part2_score += (enemy+you-1)%3 + 1 + you*3  
+
 
 print(score)
-        
-
-file.close()
+print(part2_score)
