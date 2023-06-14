@@ -1,5 +1,5 @@
 def take_input() -> dict:
-   with open("example.txt", "r") as file:
+   with open("input.txt", "r") as file:
 
       tile_map = {}
 
@@ -25,7 +25,48 @@ def take_input() -> dict:
          
       return tile_map
       
+def drop_sand(tile_map, y_limit) -> bool:
+   sand_x, sand_y = 500, 0
+   moving = True
+
+   while moving:
+      if sand_y > y_limit:
+         return True
+
+      position = (sand_x, sand_y)
+      position_below = (sand_x, sand_y + 1)
+      position_below_left = (sand_x - 1, sand_y + 1)
+      position_below_right = (sand_x + 1, sand_y + 1)
+
+      if position_below not in tile_map:
+         sand_y += 1
+      
+      elif position_below_left not in tile_map:
+         sand_y += 1
+         sand_x -= 1
+      
+      elif position_below_right not in tile_map:
+         sand_y += 1
+         sand_x += 1
+      
+      else:
+         moving = False
+         tile_map[position] = "Sand"
+   
+   return False
+
+
 def part_one():
    tile_map = take_input()
+   lowest_point = max(list(tile_map.keys()), key = lambda x: x[1])
+   y_limit = lowest_point[1]
+
+   flowing = False
+   count = 0
+   while not flowing:
+      flowing = drop_sand(tile_map, y_limit)
+      if not flowing : count += 1
+   
+   print(count)
 
 part_one()
