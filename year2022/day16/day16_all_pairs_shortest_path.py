@@ -22,13 +22,14 @@ def all_pairs_shortest_path(matrix : list[list]) -> list[list]:
                matrix[i][j] = matrix[i][k] + matrix[k][j]
    return matrix
 
+def travelling_salesman(matrix, rates, budget = 30, current_index = 0, open_valves = set() , accumulated_pressure = 0):
+   pass
 
 graph = defaultdict(set) # x -> ( a, b, c)
 flow_rates = {}
- 
 start = None
 
-with open( "example.txt", "r") as file:
+with open( "input.txt", "r") as file:
    lines = file.readlines()
 for i, line in enumerate(lines):
    line = line.split()
@@ -44,34 +45,42 @@ for i, line in enumerate(lines):
       graph[valve].add(tunnel)
    flow_rates[i] = rate
 
-
 distances =  all_pairs_shortest_path( adjaceny_matrix_from_graph(graph) )
 open_valves = set()
-pressure_gains = [0] * len(distances) # The ammount of pressure we get by moving to that node and opening it
 
-minute = 30
+minute = 0
 current_index = 0 
 accumulated_pressure = 0
-while minute:
-   minute -= 1
+while minute < 30:
+   minute += 1
+   pressure_gains = [0] * len(distances) # The ammount of pressure we get by moving to that node and opening it
+
+   for v in open_valves:
+      accumulated_pressure += flow_rates[v] 
+   
    dist_from_current_to_others = distances[current_index]
    for i, cost in enumerate(dist_from_current_to_others):
       if i in open_valves: 
          continue
       else:
-         pressure_gains[i] = (minute - cost) * flow_rates[i]
+         pressure_gains[i] = ((30 - minute) - cost) * flow_rates[i]
 
    best_valve_to_open = pressure_gains.index( max(pressure_gains) )
+   time_doing_task = dist_from_current_to_others[best_valve_to_open]
+   
+   while time_doing_task and minute <= 30:
+      time_doing_task -= 1
+      minute += 1 
+      for v in open_valves:
+         accumulated_pressure += flow_rates[v] 
+
+   print(current_index)
    open_valves.add(best_valve_to_open)
-   time_to_open_valve = dist_from_current_to_others[best_valve_to_open]
-   minute -= time_to_open_valve
-
-   for v in open_valves:
-      accumulated_pressure += flow_rates[v]
-   
-   pressure_gains = [0] * len(distances)
-   
-   print(accumulated_pressure)
-
+   current_index = best_valve_to_open
+     
 print(accumulated_pressure)
-print(distances[0][9])
+
+# ** When given the correct path order we can calculate the pressure gains correctly
+# ! We cannot find the optimal path
+# TODO I guess we need to implement a way of doing this top down DP problem
+# ! I really do not know how this relates to DP, feel mostly like a travlling salesman problem
