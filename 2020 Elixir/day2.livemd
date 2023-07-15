@@ -1,0 +1,38 @@
+# Untitled notebook
+
+## Section
+
+```elixir
+Mix.install([:kino])
+```
+
+```elixir
+input = Kino.Input.textarea("input file: ")
+```
+
+```elixir
+input = Kino.Input.read(input)
+
+defmodule Advent do
+  def is_in_range(x, [a, b]) do
+    x >= a and x <= b
+  end
+end
+
+chunks =
+  input
+  |> String.split()
+  |> Enum.map(&String.replace(&1, ":", ""))
+  |> Enum.map_every(3, &(&1 |> String.split("-") |> Enum.map(fn x -> String.to_integer(x) end)))
+  |> Enum.chunk_every(3)
+
+part_1 =
+  chunks
+  |> Enum.map(fn [nums, let, password] ->
+    String.graphemes(password) |> Enum.count(&(&1 == let)) |> Advent.is_in_range(nums)
+  end)
+  |> Enum.count(& &1)
+  |> IO.puts()
+
+part2 = chunks
+```
