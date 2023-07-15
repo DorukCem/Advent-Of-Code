@@ -1,0 +1,34 @@
+# day 1
+
+```elixir
+Mix.install([:kino])
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("input file: ")
+```
+
+```elixir
+input = Kino.Input.read(input)
+
+nums =
+  input
+  |> String.split()
+  |> Enum.map(&(&1 |> String.to_integer()))
+
+part_1 =
+  Enum.filter(nums, &Enum.member?(nums, 2020 - &1))
+  |> Enum.reduce(1, &(&1 * &2))
+
+IO.puts("part1: #{part_1}")
+
+pairs = for x <- nums, y <- nums, x != y and x + y < 2020, into: %{}, do: {x + y, {x, y}}
+
+part_2 =
+  Enum.filter(nums, &Map.has_key?(pairs, 2020 - &1))
+  |> Enum.reduce(1, &(&1 * &2))
+
+IO.puts("part2: #{part_2}")
+```
