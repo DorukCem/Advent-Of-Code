@@ -1,0 +1,51 @@
+# day3
+
+## Section
+
+```elixir
+Mix.install([:kino])
+```
+
+```elixir
+input = Kino.Input.textarea("input file: ")
+```
+
+```elixir
+input = Kino.Input.read(input)
+
+defmodule Recursion do
+  def rec([head | tail], x, count, [right, 1]) do
+    let = String.at(head, x)
+    bool = if let == "#", do: 1, else: 0
+    modulo_x = rem(x + right, String.length(head))
+    rec(tail, modulo_x, count + bool, [right, 1])
+  end
+
+  def rec([head | tail], x, count, [right, 2]) do
+    let = String.at(head, x)
+    bool = if let == "#", do: 1, else: 0
+    modulo_x = rem(x + right, String.length(head))
+    tail_tail = List.delete_at(tail, 0)
+    rec(tail_tail, modulo_x, count + bool, [right, 2])
+  end
+
+  def rec([], _, count, _) do
+    count
+  end
+end
+
+map = String.split(input)
+
+part1 =
+  map
+  |> Recursion.rec(0, 0, [3, 1])
+  |> IO.puts()
+
+directions = [[1, 1], [3, 1], [5, 1], [7, 1], [1, 2]]
+x = for dir <- directions, do: Recursion.rec(map, 0, 0, dir)
+
+part2 =
+  x
+  |> Enum.reduce(&(&1 * &2))
+  |> IO.puts()
+```
