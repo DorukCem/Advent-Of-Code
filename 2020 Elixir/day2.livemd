@@ -1,4 +1,4 @@
-# Untitled notebook
+# day2
 
 ## Section
 
@@ -13,26 +13,29 @@ input = Kino.Input.textarea("input file: ")
 ```elixir
 input = Kino.Input.read(input)
 
-defmodule Advent do
-  def is_in_range(x, [a, b]) do
-    x >= a and x <= b
-  end
-end
+is_in_range = fn x, [a, b] -> x >= a and x <= b end
+xor = &((&1 and not &2) or (not &1 and &2))
 
 chunks =
   input
-  |> String.split()
+  |> String.split([" ", "\n"])
   |> Enum.map(&String.replace(&1, ":", ""))
   |> Enum.map_every(3, &(&1 |> String.split("-") |> Enum.map(fn x -> String.to_integer(x) end)))
   |> Enum.chunk_every(3)
 
 part_1 =
   chunks
-  |> Enum.map(fn [nums, let, password] ->
-    String.graphemes(password) |> Enum.count(&(&1 == let)) |> Advent.is_in_range(nums)
+  |> Enum.filter(fn [nums, let, password] ->
+    String.graphemes(password) |> Enum.count(&(&1 == let)) |> is_in_range.(nums)
   end)
-  |> Enum.count(& &1)
+  |> Enum.count()
   |> IO.puts()
 
-part2 = chunks
+part2 =
+  chunks
+  |> Enum.filter(fn [[n1, n2], let, password] ->
+    xor.(String.at(password, n1 - 1) == let, String.at(password, n2 - 1) == let)
+  end)
+  |> Enum.count()
+  |> IO.puts()
 ```
