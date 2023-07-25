@@ -1,0 +1,73 @@
+# day4
+
+```elixir
+Mix.install([:kino])
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("input file: ")
+```
+
+```elixir
+input = Kino.Input.read(input)
+
+defmodule Valid do
+  def all_fields_valid?(record) do
+    Enum.all?(record, fn {field, value} -> valid?(field, value) end)
+  end
+
+  def valid?(field, year) when field in ["byr", "eyr", "iyr"] and is_binary(year) do
+    valid?(field, String.to_integer(year))
+  end
+
+  def valid?("byr", year) when year in 1920..2002, do: true
+  def valid?("iyr", year) when year in 2010..2020, do: true
+  def valid?("eyr", year) when year in 2020..2030, do: true
+
+  def valid?("hgt", {cm, "cm"}) when cm in 150..193, do: true
+  def valid?("hgt", {inch, "in"}) when inch in 59..76, do: true
+  def valid?("hgt", {_, _}), do: false
+  def valid?("hgt", height), do: valid?("hgt", Integer.parse(height))
+
+  def valid?("hcl", color), do: Regex.match?(~r/^#[0-9a-f]{6}$/, color)
+  def valid?("pid", pid), do: Regex.match?(~r/^[0-9]{9}$/, pid)
+
+  def valid?("ecl", color) when color in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"],
+    do: true
+
+  def valid?("cid", _), do: true
+  def valid?(_, _), do: false
+
+  def all_fields_present?(record) do
+    Map.keys(record)
+    |> MapSet.new()
+    |> subset?()
+  end
+
+  def subset?(set) do
+    needs = MapSet.new(["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"])
+    MapSet.subset?(needs, set)
+  end
+end
+
+data =
+  input
+  |> String.split("\n\n")
+  |> Enum.map(
+    &(String.split(&1, [" ", "\n", ":"])
+      |> Enum.chunk_every(2)
+      |> Map.new(fn [k, v] -> {k, v} end))
+  )
+
+part1 =
+  data
+  |> Enum.count(&Valid.all_fields_present?(&1))
+  |> IO.puts()
+
+part2 =
+  data
+  |> Enum.count(&(Valid.all_fields_valid?(&1) and Valid.all_fields_present?(&1)))
+  |> IO.puts()
+```
