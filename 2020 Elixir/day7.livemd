@@ -1,0 +1,54 @@
+# day7
+
+```elixir
+Mix.install([:kino])
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("please enter text")
+```
+
+```elixir
+input = Kino.Input.read(input)
+
+defmodule Graph_Gen do
+  def to_edge([a, "noother"]) do
+    {nil, String.to_atom(a)}
+  end
+
+  def to_edge([a, b]) do
+    {String.to_atom(b), String.to_atom(a)}
+  end
+
+  def to_edge([head | tail]) do
+    for e <- tail, do: {String.to_atom(e), String.to_atom(head)}
+  end
+
+  def search(graph, "shinygoldbag") do
+    search(graph, :shinygoldbag, 0)
+  end
+
+  def search(graph, node, accum) do
+    if Map.has_key?(graph, node) do
+      search(graph, node, accum + 1)
+    else
+      accum
+    end
+  end
+end
+
+lists =
+  input
+  |> String.split("\n")
+  # replace all digits
+  |> Enum.map(&String.replace(&1, ~r/\d/, ""))
+  |> Enum.map(&String.replace(&1, ["bags", " ", "."], ""))
+  |> Enum.map(&String.split(&1, ["contain", ","]))
+  |> Enum.map(&Graph_Gen.to_edge(&1))
+  |> List.flatten()
+
+# |> Map.new()
+# |> Graph_Gen.search( "shinygoldbag")
+```

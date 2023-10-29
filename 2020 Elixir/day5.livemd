@@ -1,0 +1,74 @@
+# day5
+
+```elixir
+Mix.install([:kino])
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("Enter input")
+```
+
+```elixir
+input = Kino.Input.read(input)
+
+defmodule Recursion do
+  def find_row(["F" | tail], {lower, upper}) do
+    middle = Integer.floor_div(upper + lower, 2)
+    find_row(tail, {lower, middle})
+  end
+
+  def find_row(["B" | tail], {lower, upper}) do
+    middle = Integer.floor_div(upper + lower, 2)
+    find_row(tail, {middle, upper})
+  end
+
+  def find_row(other, {_, upper}) do
+    find_col(other, {0, 7}, upper)
+  end
+
+  def find_col(["L" | tail], {lower, upper}, row) do
+    middle = Integer.floor_div(upper + lower, 2)
+    find_col(tail, {lower, middle}, row)
+  end
+
+  def find_col(["R" | tail], {lower, upper}, row) do
+    middle = Integer.floor_div(upper + lower, 2)
+    find_col(tail, {middle, upper}, row)
+  end
+
+  def find_col([], {_, col}, row) do
+    row * 8 + col
+  end
+
+  def find_gap([head | tail], nil) do
+    find_gap(tail, head)
+  end
+
+  def find_gap([head | tail], prev) when head == prev + 1 do
+    find_gap(tail, head)
+  end
+
+  def find_gap([head | _], prev) when head != prev + 1 do
+    prev + 1
+  end
+end
+
+part1 =
+  input
+  |> String.split()
+  |> Enum.map(&String.graphemes(&1))
+  |> Enum.map(&Recursion.find_row(&1, {0, 127}))
+  |> Enum.max()
+  |> IO.puts()
+
+part2 =
+  input
+  |> String.split()
+  |> Enum.map(&String.graphemes(&1))
+  |> Enum.map(&Recursion.find_row(&1, {0, 127}))
+  |> Enum.sort()
+  |> Recursion.find_gap(nil)
+  |> IO.puts()
+```

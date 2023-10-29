@@ -1,0 +1,43 @@
+# day6
+
+```elixir
+Mix.install([:kino])
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("Enter input: ")
+```
+
+```elixir
+input = Kino.Input.read(input)
+
+part1 =
+  input
+  |> String.split("\n\n")
+  |> Enum.map(&String.replace(&1, "\n", ""))
+  |> Enum.map(&String.graphemes(&1))
+  |> Enum.map(&Enum.uniq(&1))
+  |> List.flatten()
+  |> Enum.count()
+  |> IO.puts()
+
+data =
+  input
+  |> String.split("\n\n")
+  |> Enum.map(&String.split(&1))
+
+map =
+  for list <- data do
+    for str <- list do
+      String.graphemes(str) |> MapSet.new()
+    end
+  end
+
+part2 =
+  Enum.map(map, fn x -> Enum.reduce(x, &MapSet.intersection(&1, &2)) end)
+  |> Enum.map(&MapSet.size(&1))
+  |> Enum.sum()
+  |> IO.puts()
+```
