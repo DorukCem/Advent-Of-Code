@@ -56,3 +56,10 @@ while stack:
    current = stack.pop()
    if current not in visit:
       visit.add(current)
+
+# * Something like this might be useful if I am going to use DFS
+# Remove current vertex from path[] and mark it as unvisited
+#   path.pop()
+#   visited[u]= False
+# ! If we are going with DFS I have to figure the visit algorithm
+# https://stackoverflow.com/questions/9535819/find-all-paths-between-two-graph-nodes
