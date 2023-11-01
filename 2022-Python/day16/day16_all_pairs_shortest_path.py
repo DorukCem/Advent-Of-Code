@@ -24,10 +24,10 @@ def all_pairs_shortest_path(matrix : list[list]) -> list[list]:
 
 
 graph = defaultdict(set) # x -> ( a, b, c)
-flow_rates = {}
+flow_rates = {} # flow_rate of valve x -> flow_rates[x]
 start = None
 
-with open( "input.txt", "r") as file:
+with open( "example.txt", "r") as file:
    lines = file.readlines()
 for i, line in enumerate(lines):
    line = line.split()
@@ -43,10 +43,16 @@ for i, line in enumerate(lines):
       graph[valve].add(tunnel)
    flow_rates[i] = rate
 
-distances =  all_pairs_shortest_path( adjaceny_matrix_from_graph(graph) )
-open_valves = set()
+# distance from valve x to valve y : distances[x][y]
+distances =  all_pairs_shortest_path( adjaceny_matrix_from_graph(graph) ) 
+non_zero = [i for i in range(len(distances)) if flow_rates[i]]
 
-print(distances)
 
-#new comment
-# one more??
+all_paths = [] 
+# DFS
+visit = set()
+stack = [start]
+while stack:
+   current = stack.pop()
+   if current not in visit:
+      visit.add(current)
