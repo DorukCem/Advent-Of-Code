@@ -25,16 +25,14 @@ def all_pairs_shortest_path(matrix : list[list]) -> list[list]:
 
 graph = defaultdict(set) # x -> ( a, b, c)
 flow_rates = {} # flow_rate of valve x -> flow_rates[x]
-start = None
 
-with open( "example.txt", "r") as file:
+with open( "input.txt", "r") as file:
    lines = file.readlines()
 for i, line in enumerate(lines):
    line = line.split()
    valve, rate = line[1], line[4]
    tunnels = line[9:]
 
-   if not start : start = valve # set starting valve
    # string formating
    tunnels = [i.strip(",") for i in tunnels]
    rate = int(   rate.strip("rate=").strip(";")   )
@@ -45,21 +43,31 @@ for i, line in enumerate(lines):
 
 # distance from valve x to valve y : distances[x][y]
 distances =  all_pairs_shortest_path( adjaceny_matrix_from_graph(graph) ) 
-non_zero = [i for i in range(len(distances)) if flow_rates[i]]
+non_zero = {i for i in range(len(distances)) if flow_rates[i]}
 
+def closure(non_zero):
+   max_flow = 0
+   def dfs(current_valve, time_remaining, total_flow, visited_valves : set):
+      nonlocal max_flow
 
-all_paths = [] 
-# DFS
-visit = set()
-stack = [start]
-while stack:
-   current = stack.pop()
-   if current not in visit:
-      visit.add(current)
+      visited_valves.add(current_valve)
+      total_flow += time_remaining * flow_rates[current_valve]
 
-# * Something like this might be useful if I am going to use DFS
-# Remove current vertex from path[] and mark it as unvisited
-#   path.pop()
-#   visited[u]= False
-# ! If we are going with DFS I have to figure the visit algorithm
-# https://stackoverflow.com/questions/9535819/find-all-paths-between-two-graph-nodes
+      max_flow = max(max_flow, total_flow)
+
+      for valve in non_zero:
+         if valve in visited_valves:
+            continue
+         time_to_reach_valve = distances[current_valve][valve]
+         if time_remaining - time_to_reach_valve - 1 > 0:
+            dfs(valve, time_remaining - time_to_reach_valve - 1, total_flow, visited_valves)        
+
+      visited_valves.remove(current_valve)
+   # ---
+   dfs(0, 30, 0, set())
+   print(max_flow)
+
+closure(non_zero)
+# Since time remaining is limited, we will not be going down every path
+
+# ? 1660 was too high
