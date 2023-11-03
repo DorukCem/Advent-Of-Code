@@ -26,7 +26,7 @@ def all_pairs_shortest_path(matrix : list[list]) -> list[list]:
 graph = defaultdict(set) # x -> ( a, b, c)
 flow_rates = {} # flow_rate of valve x -> flow_rates[x]
 
-with open( "input.txt", "r") as file:
+with open( "example.txt", "r") as file:
    lines = file.readlines()
 for i, line in enumerate(lines):
    line = line.split()
@@ -71,3 +71,7 @@ closure(non_zero)
 # Since time remaining is limited, we will not be going down every path
 
 # ? 1660 was too high
+# ? 1565 was too high as well
+
+# * The only difference between example and input is that in 
+# * example you can open all the valves while in input that is not the case
