@@ -70,8 +70,7 @@ def closure(non_zero):
 closure(non_zero)
 # Since time remaining is limited, we will not be going down every path
 
-# ? 1660 was too high
-# ? 1565 was too high as well
+# * answer : 1376
 
 # * The only difference between example and input is that in 
 # * example you can open all the valves while in input that is not the case
