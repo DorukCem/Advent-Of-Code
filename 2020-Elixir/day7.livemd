@@ -13,6 +13,9 @@ input = Kino.Input.textarea("please enter text")
 ```elixir
 input = Kino.Input.read(input)
 
+# We will construct a graph where 
+# Every bag will point to the bag that contains it
+
 defmodule Graph_Gen do
   def to_edge([a, "noother"]) do
     {nil, String.to_atom(a)}
@@ -26,15 +29,24 @@ defmodule Graph_Gen do
     for e <- tail, do: {String.to_atom(e), String.to_atom(head)}
   end
 
-  def search(graph, "shinygoldbag") do
-    search(graph, :shinygoldbag, 0)
+  def to_graph(edges) do
+    graph = for {a, _} <- edges, into: %{}, do: {a, []}
+
+    Enum.reduce(edges, graph, fn {a, b}, graph ->
+      Map.update!(graph, a, &[b | &1])
+    end)
+  end
+
+  def search(graph) do
+    search(graph, :shinygold, 0)
   end
 
   def search(graph, node, accum) do
     if Map.has_key?(graph, node) do
-      search(graph, node, accum + 1)
+      list = Map.get(graph, node)
+      Enum.each(list, &search(graph, &1, accum + 1))
     else
-      accum
+      IO.puts(accum)
     end
   end
 end
@@ -44,11 +56,11 @@ lists =
   |> String.split("\n")
   # replace all digits
   |> Enum.map(&String.replace(&1, ~r/\d/, ""))
-  |> Enum.map(&String.replace(&1, ["bags", " ", "."], ""))
+  |> Enum.map(&String.replace(&1, ["bags", "bag", " ", "."], ""))
   |> Enum.map(&String.split(&1, ["contain", ","]))
   |> Enum.map(&Graph_Gen.to_edge(&1))
   |> List.flatten()
+  |> Graph_Gen.to_graph()
 
-# |> Map.new()
-# |> Graph_Gen.search( "shinygoldbag")
+# |> Graph_Gen.search()
 ```
