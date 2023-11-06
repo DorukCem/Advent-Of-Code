@@ -22,30 +22,7 @@ def all_pairs_shortest_path(matrix : list[list]) -> list[list]:
                matrix[i][j] = matrix[i][k] + matrix[k][j]
    return matrix
 
-
-graph = defaultdict(set) # x -> ( a, b, c)
-flow_rates = {} # flow_rate of valve x -> flow_rates[x]
-
-with open( "example.txt", "r") as file:
-   lines = file.readlines()
-for i, line in enumerate(lines):
-   line = line.split()
-   valve, rate = line[1], line[4]
-   tunnels = line[9:]
-
-   # string formating
-   tunnels = [i.strip(",") for i in tunnels]
-   rate = int(   rate.strip("rate=").strip(";")   )
-   
-   for tunnel in tunnels:
-      graph[valve].add(tunnel)
-   flow_rates[i] = rate
-
-# distance from valve x to valve y : distances[x][y]
-distances =  all_pairs_shortest_path( adjaceny_matrix_from_graph(graph) ) 
-non_zero = {i for i in range(len(distances)) if flow_rates[i]}
-
-def closure(non_zero):
+def search(distances, non_zero, flow_rates):
    max_flow = 0
    def dfs(current_valve, time_remaining, total_flow, visited_valves : set):
       nonlocal max_flow
@@ -66,11 +43,32 @@ def closure(non_zero):
    # ---
    dfs(0, 30, 0, set())
    print(max_flow)
-
-closure(non_zero)
 # Since time remaining is limited, we will not be going down every path
 
-# * answer : 1376
+graph = defaultdict(set) # x -> ( a, b, c)
+flow_rates = {} # flow_rate of valve x -> flow_rates[x]
+# Parsing the input into a graph 
+# ---------
+with open( "example.txt", "r") as file:
+   lines = file.readlines()
+for i, line in enumerate(lines):
+   line = line.split()
+   valve, rate = line[1], line[4]
+   tunnels = line[9:]
 
-# * The only difference between example and input is that in 
-# * example you can open all the valves while in input that is not the case
+   # string formating
+   tunnels = [i.strip(",") for i in tunnels]
+   rate = int(   rate.strip("rate=").strip(";")   )
+   
+   for tunnel in tunnels:
+      graph[valve].add(tunnel)
+   flow_rates[i] = rate
+# ---------
+
+# distance from valve x to valve y : distances[x][y]
+distances =  all_pairs_shortest_path( adjaceny_matrix_from_graph(graph) ) 
+non_zero_valves = {i for i in range(len(distances)) if flow_rates[i]} 
+
+search(distances, non_zero_valves, flow_rates)
+
+# * My algorithm is overshooting

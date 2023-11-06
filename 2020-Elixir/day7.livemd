@@ -38,15 +38,17 @@ defmodule Graph_Gen do
   end
 
   def search(graph) do
-    search(graph, :shinygold, 0)
+    search(graph, :shinygold, 0, %{:shinygold => :visit})
   end
 
-  def search(graph, node, accum) do
-    if Map.has_key?(graph, node) do
-      list = Map.get(graph, node)
-      Enum.each(list, &search(graph, &1, accum + 1))
+  def search(graph, node, accum, visit) do
+    if Map.has_key?(graph, node) and not Map.has_key?(visit, node) do
+      Map.get(graph, node)
+      |> Enum.map(&search(graph, &1, accum + 1, %{visit | &1 => :visit}))
+      |> Enum.reduce(&(&1 + &2))
     else
       IO.puts(accum)
+      accum
     end
   end
 end
