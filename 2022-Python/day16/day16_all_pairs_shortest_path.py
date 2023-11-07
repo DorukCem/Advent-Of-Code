@@ -22,7 +22,7 @@ def all_pairs_shortest_path(matrix : list[list]) -> list[list]:
                matrix[i][j] = matrix[i][k] + matrix[k][j]
    return matrix
 
-def search(distances, non_zero, flow_rates):
+def search(distances, non_zero, flow_rates, start_node):
    max_flow = 0
    def dfs(current_valve, time_remaining, total_flow, visited_valves : set):
       nonlocal max_flow
@@ -41,7 +41,7 @@ def search(distances, non_zero, flow_rates):
 
       visited_valves.remove(current_valve)
    # ---
-   dfs(0, 30, 0, set())
+   dfs(start_node, 30, 0, set())
    print(max_flow)
 # Since time remaining is limited, we will not be going down every path
 
@@ -49,7 +49,7 @@ graph = defaultdict(set) # x -> ( a, b, c)
 flow_rates = {} # flow_rate of valve x -> flow_rates[x]
 # Parsing the input into a graph 
 # ---------
-with open( "example.txt", "r") as file:
+with open( "input.txt", "r") as file:
    lines = file.readlines()
 for i, line in enumerate(lines):
    line = line.split()
@@ -63,12 +63,15 @@ for i, line in enumerate(lines):
    for tunnel in tunnels:
       graph[valve].add(tunnel)
    flow_rates[i] = rate
+
+start_node = list(graph).index('AA')
 # ---------
 
+# Part 1
 # distance from valve x to valve y : distances[x][y]
 distances =  all_pairs_shortest_path( adjaceny_matrix_from_graph(graph) ) 
 non_zero_valves = {i for i in range(len(distances)) if flow_rates[i]} 
 
-search(distances, non_zero_valves, flow_rates)
+search(distances, non_zero_valves, flow_rates, start_node)
 
-# * My algorithm is overshooting
+# Part 2
