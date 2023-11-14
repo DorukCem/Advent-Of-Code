@@ -70,13 +70,21 @@ def double_search(distances, non_zero, flow_rates, start_node):
    dfs(start_node, 26, 0, set()) 
    
    s = sorted( paths_value_pairs, key= lambda x: x[1], reverse= True ) 
-
+   
    max_pair = 0
-   for p1, v1 in s[:2000]:
-      for p2, v2 in s[:2000]:
-         if len(set(p1).intersection(p2)) > 1 :
+   for path1, v1 in s:
+      # The idea is that once you get to a v1 value whose value is less 
+      # than half of the current best, you can break out of the loop 
+      # because further iterations will not yield a higher combined score (score = v1 + v2) 
+      # (Note that s is sorted)
+      if v1 * 2 < max_pair:
+         break
+
+      for path2, v2 in s:
+         if len(set(path1).intersection(path2)) > 1 : # Two paths must be non interescting 
             continue
          max_pair = max(max_pair, v1+v2 )
+   
    print(max_pair)
 
 graph = defaultdict(set) # x -> ( a, b, c)
