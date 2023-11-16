@@ -1,3 +1,5 @@
+import copy
+
 with open( "2022-Python/day17/example.txt", "r") as file:
    winds = file.read()
 
@@ -31,7 +33,7 @@ def select_rock():
    i = 0
    rocks = [ROCK1, ROCK2, ROCK3, ROCK4, ROCK5]
    while True:
-      yield rocks[i][::]
+      yield copy.deepcopy(rocks[i]) # deep copy is improtant here because if we do a shallow copy the lists inside the lists will not coppied immutably 
       i+=1
       i%=5
 
@@ -53,40 +55,42 @@ def drop_rock(rock, chamber, wind_selector):
       left_collision = False
       right_collision = False
       for x,y in rock:
-         if y-1 < 1 or (x, y-1) in chamber:
-            down_collision = True
-         if x-1 < 1 or (x-1, y-1) in chamber: # ! ?? 
+         if x-1 < 1 or (x-1, y) in chamber: 
             left_collision = True
-         if x+1 > 7 or (x+1, y-1) in chamber:
+         if x+1 > 7 or (x+1, y) in chamber:
             right_collision = True
-         
+      
       wind = next(wind_selector)
       for pos in rock:
-         if not down_collision:
-            pos[1] -= 1
          if wind == '<' and not left_collision:
             pos[0] -= 1
          if wind == '>' and not right_collision:
             pos[0] += 1
-            
-      print(rock)
+         
+      for x,y in rock:
+         if y-1 < 1 or (x, y-1) in chamber:
+            down_collision = True
 
+      if not down_collision:
+         for pos in rock:  
+            pos[1] -= 1
+            
    for pos in rock:
       chamber.add(tuple(pos)) 
 
+# Part1
 
 rock_selector = select_rock()
 wind_selector = select_wind()
 chamber = set()
 max_height = 0
 
-for i in range(2):
-   print("----- new_rock -------")
-   new_rock = next(rock_selector)   
+for _ in range(2022):
+   new_rock = next(rock_selector)  
    set_rock_pos(max_height, new_rock)
-   print(new_rock)
    drop_rock(new_rock, chamber, wind_selector)
    max_height_of_rock = max(new_rock, key=lambda x:x[1])[1]
    max_height = max(max_height, max_height_of_rock)
 
 print(max_height)
+
