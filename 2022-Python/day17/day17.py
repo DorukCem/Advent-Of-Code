@@ -84,13 +84,28 @@ rock_selector = select_rock()
 wind_selector = select_wind()
 chamber = set()
 max_height = 0
+rock_id, wind_id = -1, -1
+cache = set()
 
-for _ in range(2022):
+for i in range(50_000):
    new_rock = next(rock_selector)  
    set_rock_pos(max_height, new_rock)
    drop_rock(new_rock, chamber, wind_selector)
    max_height_of_rock = max(new_rock, key=lambda x:x[1])[1]
    max_height = max(max_height, max_height_of_rock)
+
+# Find Cycles
+# TODO find cycles trough rock and wind id
+# TODO at every cycle point measure delta y
+# TODO find delta y cycles
+
+   rock_id = (rock_id + 1) % 5
+   wind_id = (wind_id + 1) % len(winds)
+   key = (rock_id, wind_id)
+   if key in cache:
+      print(f"found cycle iter: {i}, rock_id: {rock_id}, wind_id: {wind_id}")
+   else:
+      cache.add(key)
 
 print(max_height)
 
