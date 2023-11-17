@@ -103,7 +103,7 @@ for i in range(50_000):
    wind_id = (wind_id + 1) % len(winds)
    key = (rock_id, wind_id)
    if key in cache:
-      print(f"found cycle iter: {i}, rock_id: {rock_id}, wind_id: {wind_id}")
+      print(f"found cycle iter: {i}, rock_id: {rock_id}, wind_id: {wind_id}") # This just finds the same keys after the first modulo equalibruim point
    else:
       cache.add(key)
 
