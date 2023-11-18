@@ -49,7 +49,7 @@ def set_rock_pos(max_height, rock):
       pos[0] += 2
       pos[1] += max_height + 4
 
-def drop_rock(rock, chamber, wind_selector):
+def drop_rock(rock, chamber, wind_selector, column_heights):
    down_collision = False
    while not down_collision:
       left_collision = False
@@ -75,8 +75,13 @@ def drop_rock(rock, chamber, wind_selector):
          for pos in rock:  
             pos[1] -= 1
             
-   for pos in rock:
-      chamber.add(tuple(pos)) 
+   for x,y in rock:
+      chamber.add( (x, y) ) 
+      column_heights[x-1] = max(column_heights[x-1], y)
+
+def get_surface_shape(column_heights):
+   lowest = min(column_heights)
+   return tuple( [h - lowest for h in column_heights] )
 
 # Part1
 
@@ -86,26 +91,37 @@ chamber = set()
 max_height = 0
 rock_id, wind_id = -1, -1
 cache = set()
+column_heights = [0 for _ in range(7)] # We will keep track of this so that we can find the surface profile at any given moment
+# We will that use that surface profile to generate a unique key
 
-for i in range(50_000):
+cycle_height, cycle_mod = None, None
+
+TARGET = 1000000000000
+
+for i in range(5_000):
    new_rock = next(rock_selector)  
    set_rock_pos(max_height, new_rock)
-   drop_rock(new_rock, chamber, wind_selector)
+   drop_rock(new_rock, chamber, wind_selector, column_heights)
    max_height_of_rock = max(new_rock, key=lambda x:x[1])[1]
    max_height = max(max_height, max_height_of_rock)
-
-# Find Cycles
-# TODO find cycles trough rock and wind id
-# TODO at every cycle point measure delta y
-# TODO find delta y cycles
-
+   shape = get_surface_shape(column_heights)
+   #-----
    rock_id = (rock_id + 1) % 5
    wind_id = (wind_id + 1) % len(winds)
-   key = (rock_id, wind_id)
+   key = (shape, wind_id, rock_id)
+   
+   if i == 70:
+      a = max_height
+
    if key in cache:
-      print(f"found cycle iter: {i}, rock_id: {rock_id}, wind_id: {wind_id}") # This just finds the same keys after the first modulo equalibruim point
+      print(f"found cycle at iter: {i}, key: {key}")
+      cycle_mod = i
+      cycle_height = max_height
+      break
    else:
       cache.add(key)
 
 print(max_height)
-
+d,m = divmod(TARGET, cycle_mod)
+print(d, m)
+print(d*cycle_height + a)
