@@ -1,6 +1,6 @@
 import copy
 
-with open( "2022-Python/day17/example.txt", "r") as file:
+with open( "2022-Python/day17/input.txt", "r") as file:
    winds = file.read()
 
 ROCK1 = [[1,0], [2,0], [3,0], [4,0]]
@@ -90,38 +90,48 @@ wind_selector = select_wind()
 chamber = set()
 max_height = 0
 rock_id, wind_id = -1, -1
-cache = set()
+cache = {}
 column_heights = [0 for _ in range(7)] # We will keep track of this so that we can find the surface profile at any given moment
 # We will that use that surface profile to generate a unique key
+heights = {}
+cycle_height, cycle_mod, cycle_start = None, None, None
 
-cycle_height, cycle_mod = None, None
+TARGET1 = 2022
+TARGET2 = 1000000000000
 
-TARGET = 1000000000000
-
-for i in range(5_000):
+for i in range(100_000):
    new_rock = next(rock_selector)  
    set_rock_pos(max_height, new_rock)
    drop_rock(new_rock, chamber, wind_selector, column_heights)
    max_height_of_rock = max(new_rock, key=lambda x:x[1])[1]
    max_height = max(max_height, max_height_of_rock)
    shape = get_surface_shape(column_heights)
-   #-----
+   #----- find cycles
    rock_id = (rock_id + 1) % 5
    wind_id = (wind_id + 1) % len(winds)
    key = (shape, wind_id, rock_id)
-   
-   if i == 70:
-      a = max_height
 
    if key in cache:
-      print(f"found cycle at iter: {i}, key: {key}")
-      cycle_mod = i
-      cycle_height = max_height
+      cycle_start = cache[key]
+      cycle_mod = i - cycle_start
+      cycle_height = max_height - heights[cycle_start]
+      print("__________________________")
+      print(f"found cycle at iter: {i}")
+      print(f"previous i: {cache[key]}")
+      print(f"cycle height: {cycle_height}, cycle mod: {cycle_mod}")
       break
    else:
-      cache.add(key)
+      cache[key] = i
 
-print(max_height)
-d,m = divmod(TARGET, cycle_mod)
-print(d, m)
-print(d*cycle_height + a)
+   heights[i] = max_height
+
+def find_end_result(target):
+   d,m = divmod(target - cycle_start - 1, cycle_mod)
+   total_height = d*cycle_height + heights[m + cycle_start]
+   print(f"d: {d}, mod: {m}")
+   print(total_height)
+
+print(".......")
+find_end_result(TARGET1) #! 3173
+print("-----")
+find_end_result(TARGET2) #! 1570930232582
