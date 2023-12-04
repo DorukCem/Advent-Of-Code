@@ -23,9 +23,12 @@ fn main() {
       let mut possible = true;
       let (mut max_r,mut max_g,mut max_b) = (0, 0, 0);
 
-      let groups: Vec<&str> =  line.split(": ").collect();
-      let second = groups[1];
-      let sets: Vec<&str> = second.split(";").collect();
+      let sets : Vec<&str> =  line.split(": ")
+         .collect::<Vec<&str>>()
+         .get(1).unwrap()
+         .split(";")
+         .collect();
+
       for set in sets {
          let (mut r,mut g,mut b) = (0, 0, 0);
 
