@@ -1,4 +1,21 @@
-use std::{fs::read_to_string, collections::HashMap};
+use std::cmp::min;
+use std::fs::read_to_string;
+use std::time::Instant;
+
+fn get_location(map : &[Vec<i128>], location : i128) -> i128 {
+   for line in map {
+      match line[..] {
+         [dest, source, range] => {
+            if source <= location && location < source+range {
+               return dest + (location - source);
+            }
+         },
+         _ => panic!(),
+      }   
+   }
+
+   return location;
+}
 
 
 fn main() {
@@ -28,36 +45,39 @@ fn main() {
    maps.push(current.clone());
 
    
-   let mut tables : Vec<HashMap<i128, i128>> = Vec::new();
-   for map in maps {
-      let mut current_table : HashMap<i128, i128> = HashMap::new();
-      for line in map {
-         match line[..] {
-            [source, dest, range] => {
-               for i in 0..range {
-                  current_table.insert(dest+i, source+i); 
-               }
-            },
-            _ => panic!(),
-         }   
-      }
-      tables.push(current_table);
-   }
-
    let mut locations : Vec<i128> = Vec::new();
-   for seed in seeds {
-      let mut current: &i128 = &seed;
-      for table in &tables {
-         let next_value = table.get(current).or_else(|| Some(current)).unwrap();
-         current = next_value;
+   for seed in &seeds {
+      let mut current = *seed;
+      for map in &maps {
+         current = get_location(&map, current)
       }
-      locations.push(*current);
+      locations.push(current);
    }
    
    let part1 = locations.iter().min().unwrap();
-   
+
+
    println!("part1: {part1}");
    
+   let start = Instant::now(); // Measure Time
 
-   // TODO: Make a function that find if num is in given range
+   let mut location : i128 = i128::MAX;
+   for chunk in seeds.chunks(2) {
+      let first = *chunk.get(0).unwrap();
+      let second = *chunk.get(1).unwrap();
+      for seed in first..first+ second {
+         let mut current = seed;
+         for map in &maps {
+            current = get_location(&map, current)
+         }
+         location = min(location, current);
+      }
+   }
+   
+   let part2 = location;
+   println!("part2: {part2}");
+
+   let duration = start.elapsed();
+   println!("Time elapsed in brute force is: {:?}", duration);
+
 }
