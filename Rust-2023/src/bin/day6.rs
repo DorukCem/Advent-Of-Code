@@ -13,31 +13,14 @@ fn read_lines(filename: &str) -> Vec<String> {
 
 fn racist(time: &i64, record_dist: &i64) -> i64{
    // * This is the quadratic formula
+   //       time and record as float 
    let tf: f64 = *time as f64;
    let rf: f64 = *record_dist as f64;
-   let th1 = ((tf + ((tf * tf - 4f64 * rf) as f64).sqrt() )/ 2f64).ceil() as i64;
-   let th2 = ((tf - ((tf * tf - 4f64 * rf) as f64).sqrt() )/ 2f64).floor() as i64;
-   
-   let mut lower = 0;
-   let mut upper = 0;
-   
-   for time_held in th2..th1 {
-      let fin_dist = time_held * (time - time_held);
-      if fin_dist > *record_dist {
-         lower = time_held;
-         break;
-      }
-   }
+   //       Roots of quadratic
+   let th1 = (((tf + ((tf * tf - 4f64 * rf) as f64).sqrt() )/ 2f64)-1f64).ceil() as i64;
+   let th2 = (((tf - ((tf * tf - 4f64 * rf) as f64).sqrt() )/ 2f64)+1f64).floor() as i64;
 
-   for time_held in (th2..th1).rev() {
-      let fin_dist = time_held * (time - time_held);
-      if fin_dist > *record_dist {
-         upper = time_held;
-         break;
-      }
-   }
-
-   let diff = upper-lower+1;
+   let diff = th1-th2+1;
    return diff;
 }
 
@@ -61,6 +44,6 @@ fn main() {
       .collect::<Vec<i64>>();
         
    let part2 = racist(&single_race[0], &single_race[1]);
-   println!("{part2:#?}");
+   println!("part2: {part2:#?}");
 
 }
