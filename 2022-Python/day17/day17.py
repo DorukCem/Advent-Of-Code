@@ -131,7 +131,10 @@ def find_end_result(target):
    print(f"d: {d}, mod: {m}")
    print(total_height)
 
-print(".......")
+print("__________________________")
+print("part1:")
 find_end_result(TARGET1) #! 3173
 print("-----")
+print("part2:")
 find_end_result(TARGET2) #! 1570930232582
+print()
