@@ -29,6 +29,7 @@ ROCK5 = [
    [1,0], [2,0]
 ]
 
+
 def select_rock():
    i = 0
    rocks = [ROCK1, ROCK2, ROCK3, ROCK4, ROCK5]
@@ -37,12 +38,15 @@ def select_rock():
       i+=1
       i%=5
 
+global wind_id
+wind_id = 0
+
 def select_wind():
-   i = 0
+   global wind_id
    while True:
-      yield winds[i]
-      i+=1
-      i %= len(winds)
+      yield winds[wind_id]
+      wind_id+=1
+      wind_id %= len(winds)
 
 def set_rock_pos(max_height, rock):
    for pos in rock:
@@ -89,7 +93,7 @@ rock_selector = select_rock()
 wind_selector = select_wind()
 chamber = set()
 max_height = 0
-rock_id, wind_id = -1, -1
+rock_id = -1
 cache = {}
 column_heights = [0 for _ in range(7)] # We will keep track of this so that we can find the surface profile at any given moment
 # We will that use that surface profile to generate a unique key
@@ -108,17 +112,12 @@ for i in range(100_000):
    shape = get_surface_shape(column_heights)
    #----- find cycles
    rock_id = (rock_id + 1) % 5
-   wind_id = (wind_id + 1) % len(winds)
    key = (shape, wind_id, rock_id)
 
    if key in cache:
       cycle_start = cache[key]
       cycle_mod = i - cycle_start
       cycle_height = max_height - heights[cycle_start]
-      print("__________________________")
-      print(f"found cycle at iter: {i}")
-      print(f"previous i: {cache[key]}")
-      print(f"cycle height: {cycle_height}, cycle mod: {cycle_mod}")
       break
    else:
       cache[key] = i
@@ -128,13 +127,8 @@ for i in range(100_000):
 def find_end_result(target):
    d,m = divmod(target - cycle_start - 1, cycle_mod)
    total_height = d*cycle_height + heights[m + cycle_start]
-   print(f"d: {d}, mod: {m}")
-   print(total_height)
+   return total_height
 
-print("__________________________")
-print("part1:")
-find_end_result(TARGET1) #! 3173
-print("-----")
-print("part2:")
-find_end_result(TARGET2) #! 1570930232582
-print()
+
+print(f"part1: {find_end_result(TARGET1)}")
+print(f"part1: {find_end_result(TARGET2)}")
