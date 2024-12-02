@@ -1,4 +1,4 @@
-with open("day1/input.txt", "r") as f:
+with open("2024/day1/day1.py", "r") as f:
     left_col = []
     right_col = []
     for line in f.readlines():
