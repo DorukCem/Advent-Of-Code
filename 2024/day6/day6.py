@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import time
 from typing import Set, Tuple
 
 
@@ -8,27 +9,14 @@ class Guard:
     y: int
     direction: str
 
-
-with open("2024/day6/input.txt", "r") as f:
-    data = f.readlines()
-    width = len(data[0])
-    height = len(data)
-
-    rocks = set()
-    guard = None
-
-    for y, row in enumerate(data):
-        for x, pos in enumerate(row):
-            match pos:
-                case ".":
-                    continue
-                case "#":
-                    rocks.add((x, y))
-                case "^":
-                    guard = Guard(x, y, "up")  #! hardcoded up
+def find_route(start_pos, rocks, width, height):
+    guard = Guard(*start_pos, "up")
 
     visit: Set[Tuple[int, int]] = set()
     visit.add((guard.x, guard.y))
+    
+    loop: Set[Tuple[int, int, str]] = set()
+    loop.add((guard.x, guard.y, "up"))
 
     while True:
         next_pos = None
@@ -55,10 +43,50 @@ with open("2024/day6/input.txt", "r") as f:
         else:
             guard.x, guard.y = next_pos
 
+        if (guard.x, guard.y, guard.direction) in loop:
+            return None, True
+
         if guard.x < 0 or guard.y < 0 or guard.x >= width or guard.y >= height:
-            break
+            return len(visit), False
 
         visit.add((guard.x, guard.y))
+        loop.add((guard.x, guard.y, guard.direction))
 
-    part1 = len(visit)
+
+with open("2024/day6/input.txt", "r") as f:
+    data = f.readlines()
+    width = len(data[0])
+    height = len(data)
+
+    rocks = set()
+    start_pos = None
+
+    for y, row in enumerate(data):
+        for x, pos in enumerate(row):
+            match pos:
+                case ".":
+                    continue
+                case "#":
+                    rocks.add((x, y))
+                case "^":
+                    start_pos = (x,y)
+
+    count, _ = find_route(start_pos, rocks, width, height)
+
+    part1 = count
     print(part1)
+
+    loop_count = 0
+
+    start_time = time.time()
+    for y in range(height):
+        for x in range(width):
+            if (x,y) not in rocks:
+                add_rock = {(x,y)}.union(rocks)
+                _, is_loop = find_route(start_pos, add_rock, width, height)
+                if is_loop:
+                    loop_count += 1
+    end_time = time.time()
+    part2 = loop_count
+    print(part2)
+    print(f"Time elapsed for part2 is {end_time - start_time}")
