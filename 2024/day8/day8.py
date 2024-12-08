@@ -43,6 +43,29 @@ with open("2024/day8/input.txt", "r") as f:
                     antinodes.add(p3)
                 if is_in_bound(p4, width, height):
                     antinodes.add(p4)
-
     part1 = len(antinodes)
     print(part1)
+
+    #part2
+    p2_nodes = set()
+    for _, v in positions.items():
+        if len(v) <= 1:
+            continue
+        for i in range(len(v)):
+            for j in range(i + 1, len(v)):
+                p1, p2 = v[i], v[j]
+                p2_nodes.add(p1)
+                p2_nodes.add(p2)
+                diff = vec_diff(p2, p1)
+                p3 = vec_add(p1, multiply(diff, -1))
+                while is_in_bound(p3, width, height):
+                    p2_nodes.add(p3)
+                    p3 = vec_add(p3, multiply(diff, -1))
+
+                p4 = vec_add(p2, diff)
+                while is_in_bound(p4, width, height):
+                    p2_nodes.add(p4)
+                    p4 = vec_add(p4, diff)
+
+    part2 = len(p2_nodes)
+    print(part2)
