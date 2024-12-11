@@ -3,7 +3,12 @@ import math
 
 stone_cache = {}
 
-
+# Here I tried to optimize by correctly presuming some stones will be present more than once
+# However I missed the fact that having exponantial ammount of stones in memory could not
+# be handled even with cache hits. We needed to keep how many times each stone appeared rather
+# than caching the calculation for it. 
+# In other words the bottle neck was looping over 2^n ammount of elements
+# how fast the function was applied to that element did not matter
 def get_next_cached(stone: int):
     if stone in stone_cache:
         return stone_cache[stone]
