@@ -28,7 +28,45 @@ def find_region_area(x, y, idx_to_region_map, garden, region_idx):
     return count
 
 
-with open("2024/day12/example1.txt", "r") as f:
+def count_corners(x, y, garden):
+    plant = garden[y][x]
+    shape = []
+    for dx, dy in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
+        if not in_bounds(x + dx, y + dy, width, heigth):
+            continue
+        if garden[y + dy][x + dx] == plant:
+            shape.append((dx, dy))
+    
+    diagonals = []
+    for ddx, ddy in [(-1,-1), (1,1), (-1, 1), (1,-1)]:
+        if not in_bounds(x + ddx, y + ddy, width, heigth):
+            continue
+        if garden[y + ddy][x + ddx] == plant:
+            diagonals.append((y + ddy,x + ddx))
+
+    match len(shape):
+        case 0:
+            return 4
+        case 1:
+            return 2
+        case 2:
+            a, b = shape
+            if a[0] == b[0] or a[1] == b[1]:
+                return 0
+            else:
+                inside_x, inside_y = (a[0] + b[0], a[1] + b[1])
+                if garden[y + inside_y][x + inside_x] != plant:
+                    return 2
+                return 1
+
+        case 3:
+            return 2
+        case 4:
+            return 0
+                    
+
+
+with open("2024/day12/example2.txt", "r") as f:
     garden = f.read().split()
     width = len(garden[0])
     heigth = len(garden)
@@ -36,6 +74,7 @@ with open("2024/day12/example1.txt", "r") as f:
     region_idx_to_areas = defaultdict(int)
     region_idx_to_param = defaultdict(int)
     plant_idx_to_region_idx = {}
+    sides = defaultdict(int)
 
     region_idx = 0  # We assign a number to each region
 
@@ -51,6 +90,8 @@ with open("2024/day12/example1.txt", "r") as f:
 
             current_region_idx = plant_idx_to_region_idx[(x, y)]
 
+            sides[current_region_idx] += count_corners(x, y, garden)
+
             num_params_of_plant = 4
             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 if not in_bounds(x + dx, y + dy, width, heigth):
@@ -61,7 +102,6 @@ with open("2024/day12/example1.txt", "r") as f:
             region_idx_to_param[current_region_idx] += num_params_of_plant
 
     total_price = 0
-    bulk_price = 0
 
     for region_idx in region_idx_to_areas.keys():
         total_price += region_idx_to_param[region_idx] * region_idx_to_areas[region_idx]
@@ -69,39 +109,11 @@ with open("2024/day12/example1.txt", "r") as f:
     print(f"part1: {part1}")
 
     # Part2
-    sides = defaultdict(lambda: 4)  # set default value as this
-    regions = defaultdict(list)
-    
-    for k, v in plant_idx_to_region_idx.items():
-        regions[v].append(k)
-    for region_idx, indices in regions.items():
-        indices_x = [x for x, _ in indices]
-        indices_y = [y for _, y in indices]
-        min_x, min_y = min(indices_x), min(indices_y)
-        max_x, max_y = max(indices_x), max(indices_y)
-        rect_w = max_x - min_x
-        rect_h = max_y - min_y
-        # Rect area after filling the empty squares
-        rect_area = rect_h * rect_w
 
-        for x in range(min_x, max_x + 1):
-            for y in range(min_y, max_y + 1):
-                if plant_idx_to_region_idx[(x, y)] == region_idx:
-                    continue
-                else:
-                    # A square has been removed here
-                    # Gain sides equal to the number of paramters that are colliding with the region of our shape
-                    count = 0
-                    for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                        if not in_bounds(x + dx, y + dy, width, heigth):
-                            continue
-                        if plant_idx_to_region_idx[(x + dx, y + dy)] == region_idx:
-                            count += 1
-                    sides[region_idx] += count
-
+    bulk_price = 0
     for region_idx in region_idx_to_areas.keys():
         bulk_price += sides[region_idx] * region_idx_to_areas[region_idx]
     part2 = bulk_price
 
     print(sides)
-    print(f"{part2}: part2")
+    print(f"part2: {part2}")
