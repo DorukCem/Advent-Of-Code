@@ -36,13 +36,13 @@ def count_corners(x, y, garden):
             continue
         if garden[y + dy][x + dx] == plant:
             shape.append((dx, dy))
-    
+
     diagonals = []
-    for ddx, ddy in [(-1,-1), (1,1), (-1, 1), (1,-1)]:
+    for ddx, ddy in [(-1, -1), (1, 1), (-1, 1), (1, -1)]:
         if not in_bounds(x + ddx, y + ddy, width, heigth):
             continue
         if garden[y + ddy][x + ddx] == plant:
-            diagonals.append((y + ddy,x + ddx))
+            diagonals.append((ddx, ddy))
 
     match len(shape):
         case 0:
@@ -60,13 +60,27 @@ def count_corners(x, y, garden):
                 return 1
 
         case 3:
-            return 2
+            missing_side = set([(1, 0), (0, 1), (-1, 0), (0, -1)]).difference(
+                set(shape)
+            )
+            missing_side = list(missing_side)[0]
+            match missing_side:
+                case (0, -1):
+                    return 2 - len([1 for x in [(1, 1), (-1, 1)] if x in diagonals])
+                case (0, 1):
+                    return 2 - len([1 for x in [(1, -1), (-1, -1)] if x in diagonals])
+                case (1, 0):
+                    return 2 - len([1 for x in [(-1, 1), (-1, -1)] if x in diagonals])
+                case (-1, 0):
+                    return 2 - len([1 for x in [(1, 1), (1, -1)] if x in diagonals])
+                case error:
+                    raise ValueError(error)
+
         case 4:
-            return 0
-                    
+            return 4 - len(diagonals)
 
 
-with open("2024/day12/example2.txt", "r") as f:
+with open("2024/day12/input.txt", "r") as f:
     garden = f.read().split()
     width = len(garden[0])
     heigth = len(garden)
@@ -82,7 +96,6 @@ with open("2024/day12/example2.txt", "r") as f:
         for x, plant in enumerate(row):
             if (x, y) not in plant_idx_to_region_idx:
                 region_idx += 1
-                print(f"{region_idx} : {plant}")
                 area = find_region_area(
                     x, y, plant_idx_to_region_idx, garden, region_idx
                 )
@@ -109,11 +122,9 @@ with open("2024/day12/example2.txt", "r") as f:
     print(f"part1: {part1}")
 
     # Part2
-
     bulk_price = 0
     for region_idx in region_idx_to_areas.keys():
         bulk_price += sides[region_idx] * region_idx_to_areas[region_idx]
     part2 = bulk_price
 
-    print(sides)
     print(f"part2: {part2}")
